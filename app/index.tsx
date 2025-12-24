@@ -1,37 +1,48 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { router } from 'expo-router'
-import React from 'react'
-import { StyleSheet, TouchableOpacity } from 'react-native'
+import * as ScreenCapture from 'expo-screen-capture'
+import React, { useEffect } from 'react'
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+
 
 const Root = () => {
   const mainBg = '#e9d1cf'
   const mainColor = '#47688e'
+
+  useEffect(() => {
+    if(Platform.OS !== 'web'){
+      ScreenCapture.preventScreenCaptureAsync()
+      return () => {
+        ScreenCapture.allowScreenCaptureAsync()
+      }
+    }
+  }, [])
   
   return (
     <SafeAreaView style={[styles.container, {}]}>
       <ThemedText style={[styles.logo, {backgroundColor: mainBg, color: mainColor}]}>
         AI
       </ThemedText>
-      <ThemedView style={[styles.welcome_message]}>
+      <View style={[styles.welcome_message]}>
         <ThemedText style={[styles.welcomeText, {color: mainColor}]}>Welcome!</ThemedText>
-        <ThemedText style={[styles.welcomeText, {color: mainColor}]}>Let&apos;s work on your English, Shall we?</ThemedText>
-      </ThemedView>
-      <ThemedView style={[styles.btns,{}]}>
+        <ThemedText style={[styles.welcomeText, {color: mainColor}]}>to our AI platform</ThemedText>
+      </View>
+      <View style={[styles.btns,{}]}>
         <TouchableOpacity
           style={[styles.btn, {backgroundColor: mainBg}]}
-          onPress={()=> router.replace('/login')}
+          onPress={()=> router.push('/login')}
         >
           <ThemedText style={[styles.btn_text, {color: mainColor, lineHeight: 26}]}>Log in</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.btn, {backgroundColor: mainBg, boxShadow: '0 -8px 30px -50px black'}]}
-          onPress={()=> router.replace('/register')}
+          onPress={()=> router.push('/register')}
           >
           <ThemedText style={[styles.btn_text, {color: mainColor}]}>Create</ThemedText>
         </TouchableOpacity>
-      </ThemedView>
+      </View>
       <ThemedView></ThemedView>
     </SafeAreaView>
   )
@@ -60,6 +71,8 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
     padding: 30,
     backgroundColor: 'none',
     width: '100%'
