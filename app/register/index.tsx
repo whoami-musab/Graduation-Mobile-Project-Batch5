@@ -48,6 +48,16 @@ const Register = () => {
   }
 
   const handleNext = () => {
+    if(username.length < 3){
+      Toast.show({
+        type: 'info',
+        text1: 'Minimum length of the fields is 3 words.',
+        autoHide: true,
+        position: 'top',
+        visibilityTime: 2000
+      })
+      return
+    }
     // if(!fullName || !username || !email || !phone || !password || !confirmPassword || terms === false){
     //   Toast.show({
     //     type: 'error',
