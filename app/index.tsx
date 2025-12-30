@@ -32,7 +32,7 @@ const Root = () => {
       <View style={[styles.btns,{}]}>
         <TouchableOpacity
           style={[styles.btn, {backgroundColor: mainBg}]}
-          onPress={()=> router.push('/login')}
+          onPress={()=> router.push('/dashboard')}
         >
           <ThemedText style={[styles.btn_text, {color: mainColor, lineHeight: 26}]}>Log in</ThemedText>
         </TouchableOpacity>
