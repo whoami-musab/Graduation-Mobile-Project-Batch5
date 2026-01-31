@@ -1,46 +1,57 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { bootstrapAuth } from '@/stateManagement/authSlice'
 import { router } from 'expo-router'
-import * as ScreenCapture from 'expo-screen-capture'
 import React, { useEffect } from 'react'
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useDispatch, useSelector } from 'react-redux'
 
 
 const Root = () => {
   const mainBg = '#e9d1cf'
   const mainColor = '#47688e'
+  const {isAuthenticated, bootstraped } = useSelector((state: any) => state.auth)
+  const dispatch = useDispatch()
 
-  useEffect(() => {
-    if(Platform.OS !== 'web'){
-      ScreenCapture.preventScreenCaptureAsync()
-      return () => {
-        ScreenCapture.allowScreenCaptureAsync()
-      }
-    }
-  }, [])
-  
+  useEffect(()=>{
+    dispatch(bootstrapAuth())
+  }, [dispatch])
+
+  useEffect(()=>{
+    if(!bootstraped) return
+    if(isAuthenticated) router.replace('/dashboard')
+  }, [bootstraped, isAuthenticated])
+
+  if(!bootstraped){
+      return (
+        <SafeAreaView style={styles.container}>
+          <ActivityIndicator />
+        </SafeAreaView>
+      );
+  }
+
   return (
     <SafeAreaView style={[styles.container, {}]}>
-      <ThemedText style={[styles.logo, {backgroundColor: mainBg, color: mainColor}]}>
+      <ThemedText style={[styles.logo, { backgroundColor: mainBg, color: mainColor }]}>
         AI
       </ThemedText>
       <View style={[styles.welcome_message]}>
-        <ThemedText style={[styles.welcomeText, {color: mainColor}]}>Welcome!</ThemedText>
-        <ThemedText style={[styles.welcomeText, {color: mainColor}]}>to our AI platform</ThemedText>
+        <ThemedText style={[styles.welcomeText, { color: mainColor }]}>Welcome!</ThemedText>
+        <ThemedText style={[styles.welcomeText, { color: mainColor }]}>to our AI platform</ThemedText>
       </View>
-      <View style={[styles.btns,{}]}>
+      <View style={[styles.btns, {}]}>
         <TouchableOpacity
-          style={[styles.btn, {backgroundColor: mainBg}]}
-          onPress={()=> router.push('/dashboard')}
+          style={[styles.btn, { backgroundColor: mainBg }]}
+          onPress={() => router.replace('/login')}
         >
-          <ThemedText style={[styles.btn_text, {color: mainColor, lineHeight: 26}]}>Log in</ThemedText>
+          <ThemedText style={[styles.btn_text, { color: mainColor, lineHeight: 26 }]}>Log in</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.btn, {backgroundColor: mainBg, boxShadow: '0 -8px 30px -50px black'}]}
-          onPress={()=> router.push('/register')}
-          >
-          <ThemedText style={[styles.btn_text, {color: mainColor}]}>Create</ThemedText>
+          style={[styles.btn, { backgroundColor: mainBg, boxShadow: '0 -8px 30px -50px black' }]}
+          onPress={() => router.replace('/register')}
+        >
+          <ThemedText style={[styles.btn_text, { color: mainColor }]}>Create</ThemedText>
         </TouchableOpacity>
       </View>
       <ThemedView></ThemedView>
@@ -77,26 +88,28 @@ const styles = StyleSheet.create({
     backgroundColor: 'none',
     width: '100%'
   },
-  welcomeText:{
+  welcomeText: {
+    width: '100%',
     fontSize: 42,
     lineHeight: 50,
     fontWeight: '400',
     backgroundColor: 'none',
+    textAlign: 'center'
   },
-  btns:{
+  btns: {
     width: '100%',
     display: 'flex',
     alignItems: 'center',
     backgroundColor: 'none',
     gap: 80
   },
-  btn:{
+  btn: {
     width: '60%',
     paddingVertical: 20,
     borderRadius: 25,
     fontSize: 32
   },
-  btn_text:{
+  btn_text: {
     textAlign: 'center',
     fontSize: 24
   }

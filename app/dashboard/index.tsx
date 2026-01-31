@@ -1,15 +1,63 @@
-import React from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { logoutThunk } from '@/stateManagement/authSlice'
+import { useRouter } from 'expo-router'
+import React, { useEffect, useRef } from 'react'
+import { Alert, BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 import Icon from 'react-native-vector-icons/Ionicons'
+import { useDispatch } from 'react-redux'
 
 const Dashboard = () => {
   const mainBg = '#e9d1cf'
   const mainColor = '#47688e'
+  const router = useRouter()
+  const lastPress = useRef(0)
 
-  const ToastInfo = () => {
-    return Toast.show({ type: 'info', text1: 'Pressed' })
+  const dispatch = useDispatch()
+
+
+    useEffect(()=>{
+    const sub = BackHandler.addEventListener('hardwareBackPress', ()=>{
+      if(router.canGoBack()){
+        return false
+      }
+
+      const now = Date.now()
+
+      if(now - lastPress.current < 2000) return false
+
+      lastPress.current = now
+
+      Toast.show({
+        type: 'info',
+        text1: 'Press again to  exit.',
+        position: 'bottom',
+        visibilityTime: 1500
+      })
+
+      return true
+
+    })
+    return ()=> sub.remove()
+  }, [router])
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'If you logged out next time you should login with username & password?. Are you sure',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Exit',
+          style: 'destructive',
+          onPress: async () => {
+            await dispatch(logoutThunk())
+            router.replace('/login')
+          },
+        },
+      ],
+    { cancelable: true }
+    )
   }
 
   return (
@@ -17,12 +65,7 @@ const Dashboard = () => {
       {/* ===================== Header ===================== */}
       <View style={[styles.header, { backgroundColor: mainBg }]}>
         <Text style={{ color: mainColor, fontSize: 32, fontWeight: '700' }}>DASHBOARD</Text>
-        <TouchableOpacity onPress={() => {
-          Toast.show({
-            type: 'info',
-            text1: 'Loged out Successful!.'
-          })
-        }}>
+        <TouchableOpacity onPress={handleLogout}>
           <Icon name='log-out-outline' size={40} color={mainColor} />
         </TouchableOpacity>
       </View>
@@ -31,7 +74,7 @@ const Dashboard = () => {
         <View style={styles.dashboard_content}>
           <TouchableOpacity
             style={[styles.dashboard_content_divs, { backgroundColor: mainBg }]}
-            onPress={ToastInfo}
+            onPress={()=> router.push('/exam/instructions')}
           >
             <Text style={styles.dashboard_content_divs_text}>
               New Test
@@ -39,7 +82,7 @@ const Dashboard = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.dashboard_content_divs, { backgroundColor: mainBg }]}
-            onPress={ToastInfo}
+            onPress={()=> router.push('/exam/mytest')}
           >
             <Text style={styles.dashboard_content_divs_text}>
               My Tests
@@ -47,7 +90,7 @@ const Dashboard = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.dashboard_content_divs, { backgroundColor: mainBg }]}
-            onPress={ToastInfo}
+            onPress={()=>router.push('/profile')}
           >
             <Text style={styles.dashboard_content_divs_text}>
               Profile
@@ -55,7 +98,7 @@ const Dashboard = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.dashboard_content_divs, { backgroundColor: mainBg }]}
-            onPress={ToastInfo}
+            onPress={()=> null}
           >
             <Text style={styles.dashboard_content_divs_text}>
               Settings
