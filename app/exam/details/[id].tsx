@@ -1,7 +1,7 @@
 import { logoutThunk } from '@/stateManagement/authSlice'
 import { get_exam_details } from '@/stateManagement/examSlice'
 import { router, useLocalSearchParams } from 'expo-router'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useDispatch, useSelector } from 'react-redux'
@@ -26,7 +26,18 @@ export default function TestDetailsById() {
     router.replace('/login')
   }
   }, [dispatch, error])
-
+  const details = getExamDetails ?? {}
+  
+  const start = useMemo(()=>{
+    return details.startTime 
+    ? new Date(details?.startTime).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'}) : 'N/A'
+  }, [details.startTime])
+  
+  const end = useMemo(()=>{
+    return details.endTime 
+    ? new Date(details?.endTime).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'}) : 'N/A'
+  }, [details.endTime])
+  
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -34,7 +45,7 @@ export default function TestDetailsById() {
       </SafeAreaView>
     )
   }
-
+  
   if (error) {
     return (
       <SafeAreaView style={styles.container}>
@@ -46,28 +57,26 @@ export default function TestDetailsById() {
     )
   }
 
-  const start = getExamDetails.startTime ? new Date(getExamDetails.startTime).toLocaleTimeString() : 'N/A'
-  const end = getExamDetails.endTime ? new Date(getExamDetails.endTime).toLocaleTimeString() : 'N/A'
-
+  
   return (
     <SafeAreaView style={[styles.container]}>
       <View style={[styles.card, { backgroundColor: mainBg }]}>
         <View>
           <Text style={[styles.title, {color: mainColor}]}>Exam Details</Text>
-          <Text style={{color: mainColor}}>Level: {getExamDetails.level ?? 'No Level'}</Text>
+          <Text style={{color: mainColor}}>Level: {details?.level ?? 'No Level'}</Text>
           <Text style={{color: mainColor}}>Start: {start}</Text>
           <Text style={{color: mainColor}}>End: {end}</Text>
         </View>
         <FlatList
-          data={getExamDetails.questions}
-          keyExtractor={(item, index) => item._id || index.toString()}
+          data={details?.questions}
+          keyExtractor={(item, index) => item?._id?.toString() || index.toString()}
           contentContainerStyle={{paddingVertical: 10}}
           renderItem={({ item, index }) => (
             <View style={[styles.qRow, {backgroundColor: '#e6e6e6ff'}]}>
-              <Text style={[styles.question, { backgroundColor: mainColor }]}>{index + 1}. {item.question}</Text>
-              <Text>Your answer: {item.userAnswer === '' ? 'Not answered' : item.userAnswer}</Text>
-              <Text>Correct: {item.correctAnswer || '-'}</Text>
-              <Text>Status: {item.isCorrect ? '✅' : '❌'}</Text>
+              <Text style={[styles.question, { backgroundColor: mainColor }]}>{index + 1}. {item?.question}</Text>
+              <Text>Your answer: {item?.userAnswer ? item?.userAnswer : 'Not answered'}</Text>
+              <Text>Correct: {item?.correctAnswer || '-'}</Text>
+              <Text>Status: {item?.isCorrect ? '✅' : '❌'}</Text>
             </View>
           )}
         />
@@ -79,8 +88,8 @@ export default function TestDetailsById() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
+    // justifyContent: 'center',
+    // alignItems: 'center'
   },
   card: {
     flex: 1,
